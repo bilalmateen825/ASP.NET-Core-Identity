@@ -1,4 +1,7 @@
+using Identity.Contracts;
 using Identity.Data;
+using Identity.Data.BO;
+using Identity.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +16,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 8;
     options.Password.RequireLowercase = true;
@@ -23,8 +26,10 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
 
     options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = true;
 })
-.AddEntityFrameworkStores<ApplicationDBContext>();
+.AddEntityFrameworkStores<ApplicationDBContext>()
+.AddDefaultTokenProviders();
 
 //builder.Services.AddAuthentication("MyCookieAuth").AddCookie("MyCookieAuth", options =>
 //{
@@ -36,6 +41,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
+
+builder.Services.Configure<SMTPSettings>(builder.Configuration.GetSection("SMPTSettings"));
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();
 

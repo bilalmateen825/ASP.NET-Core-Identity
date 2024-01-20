@@ -1,5 +1,7 @@
+using Identity.Data.BO;
 using Identity.PageViewModels;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
@@ -9,8 +11,16 @@ namespace Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
+        private readonly SignInManager<User> m_signInManager;
+
+        public LoginModel(SignInManager<User> signInManager)
+        {
+            m_signInManager = signInManager;
+        }
+
         [BindProperty]
-        public Credential Credential { get; set; }
+        public CredentialViewModel Credential { get; set; }
+
         public void OnGet()
         {
         }
@@ -18,25 +28,28 @@ namespace Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-                return Page();
+                return Page(); //Error will be displayed on Form
 
-            //Credential Verification
-            if (Credential.UserName == "admin" && Credential.Password == "Pass")
+            var result = await m_signInManager.PasswordSignInAsync(
+                 this.Credential.Email,
+                 this.Credential.Password,
+                 this.Credential.RememberMe,
+                 false);
+
+            if(result.Succeeded)
             {
-                //Security Context Creation
-                List<Claim> lstClaims = new List<Claim>()
-                {
-                    new Claim(ClaimTypes.Name,"admin"),
-                    new Claim(ClaimTypes.Email,"admin@gmail.com")
-                };
-
-                ClaimsIdentity identity = new ClaimsIdentity(lstClaims, "MyCookieAuth");
-
-                ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-
-                await HttpContext.SignInAsync("MyCookieAuth", principal);
-
                 return RedirectToPage("/Index");
+            }
+            else
+            {
+                if(result.IsLockedOut)
+                {
+                    ModelState.AddModelError("Login", "You are locked out.");
+                }
+                else
+                {
+                    ModelState.AddModelError("Login", "Failed to login.");
+                }
             }
 
             return Page();

@@ -8,7 +8,20 @@
 <br />
 
 <form method="post">
-    <div class="text-danger" asp-validation-summary="All"></div>
+    <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+
+    <div class="form-group">
+        <label>First Name</label>
+        <input class="form-control" asp-for="RegisterViewModel.FirstName" />
+        <span class="text-danger" asp-validation-for="RegisterViewModel.FirstName"></span>
+    </div>
+
+     <div class="form-group">
+        <label>Last Name</label>
+        <input class="form-control" asp-for="RegisterViewModel.LastName" />
+        <span class="text-danger" asp-validation-for="RegisterViewModel.LastName"></span>
+    </div>
+
     <div class="form-group">
         <label for="exampleInputEmail1">Email address</label>
         <input type="email" class="form-control" asp-for="RegisterViewModel.Email" aria-describedby="emailHelp">
@@ -20,5 +33,18 @@
         <input type="password" class="form-control" asp-for="RegisterViewModel.Password" placeholder="Password">
         <span class="text-danger" asp-validation-for="RegisterViewModel.Password"></span>
     </div>
+
+    <div class="form-group">
+        <label>Department</label>
+        <input class="form-control" asp-for="RegisterViewModel.Department" />
+        <span class="text-danger" asp-validation-for="RegisterViewModel.Department"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Designation</label>
+        <input class="form-control" asp-for="RegisterViewModel.Designation" />
+        <span class="text-danger" asp-validation-for="RegisterViewModel.Designation"></span>
+    </div>
+
     <button type="submit" class="btn btn-primary">Register</button>
 </form>
